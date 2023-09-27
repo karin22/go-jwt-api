@@ -1,0 +1,235 @@
+basePath: /
+definitions:
+  auth.LoginBody:
+    properties:
+      password:
+        example: "1234"
+        type: string
+      username:
+        example: karin5
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  auth.RegisterBody:
+    properties:
+      fullname:
+        example: karin pimloy
+        type: string
+      password:
+        example: "1234"
+        type: string
+      username:
+        example: karin
+        type: string
+    required:
+    - fullname
+    - password
+    - username
+    type: object
+  model.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  model.ResponseLogin:
+    properties:
+      data:
+        properties:
+          token:
+            type: string
+        type: object
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  user.UpdateUserBody:
+    properties:
+      fullname:
+        type: string
+      username:
+        type: string
+    required:
+    - fullname
+    - username
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  title: Demo login  API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      parameters:
+      - description: body
+        in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/auth.LoginBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseLogin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Register
+      tags:
+      - Auth
+  /profile:
+    get:
+      description: '*Authorization'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Profile Users
+      tags:
+      - User
+  /register:
+    post:
+      parameters:
+      - description: body
+        in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/auth.RegisterBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ResponseLogin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      summary: Register
+      tags:
+      - Auth
+  /user/{id}:
+    delete:
+      description: '*Authorization'
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: delete Users
+      tags:
+      - User
+    put:
+      description: '*Authorization'
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/user.UpdateUserBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Users
+      tags:
+      - User
+  /users:
+    get:
+      description: '*Authorization'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Read All Users
+      tags:
+      - User
+schemes:
+- https
+- http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -1,21 +1,22 @@
 package user
 
 import (
+	"helloGo/jwt-api/model"
 	"helloGo/jwt-api/orm"
+	"helloGo/jwt-api/service"
+
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	"github.com/sirupsen/logrus"
 
-	"helloGo/jwt-api/service"
-
-	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
 type UpdateUserBody struct {
-	Username string `json:"username" binding:"required" `
+	Username string `json:"username" binding:"required"`
 	Fullname string `json:"fullname"  binding:"required"`
 }
 
@@ -25,20 +26,40 @@ type User struct {
 	Fullname string
 }
 
+//		ReadAllUsers     godoc
+//		@Summary		Read All Users
+//		@Description	*Authorization
+//		@Tags			User
+//		@Produce		json
+//		@Router			/users [get]
+//	 @security ApiKeyAuth
+//	 @Success 200 {object} model.Response "OK"
+//	 @Failure 400 {object} model.Response "Bad Request"
+//	 @Failure 500 {object} model.Response "Internal Server Error"
 func ReadAllUsers(c *gin.Context) {
 
 	users := []*orm.User{}
 
 	orm.DB.Find(&users)
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Users Read Success",
-		"users":   users,
+	c.JSON(http.StatusOK, model.Response{
+		Status:  http.StatusOK,
+		Message: "Users Read Success",
+		Data:    users,
 	})
 
 }
 
+// GetProfile     godoc
+// @Summary		Get Profile Users
+// @Description	*Authorization
+// @Tags			User
+// @Produce		json
+// @Router			/profile [get]
+// @security ApiKeyAuth
+// @Success 200 {object} model.Response "OK"
+// @Failure 400 {object} model.Response "Bad Request"
+// @Failure 500 {object} model.Response "Internal Server Error"
 func Profile(c *gin.Context) {
 	header := c.Request.Header.Get("Authorization")
 	tokenString := strings.TrimPrefix(header, "Bearer ")
@@ -60,13 +81,25 @@ func Profile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Success",
-		"users":   user,
+	c.JSON(http.StatusOK, model.Response{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    user,
 	})
 }
 
+//			UpdateUser     godoc
+//			@Summary		Update Users
+//			@Description	*Authorization
+//			@Tags			User
+//			@Produce		json
+//			@Router			/user/{id} [put]
+//	 @security ApiKeyAuth
+//		 @param id path int true "id"
+//		 @param Body body UpdateUserBody false "body"
+//		 @Success 200 {object} model.Response "OK"
+//		 @Failure 400 {object} model.Response "Bad Request"
+//		 @Failure 500 {object} model.Response "Internal Server Error"
 func UpdateUser(c *gin.Context) {
 	userBody := UpdateUserBody{}
 
@@ -109,16 +142,43 @@ func UpdateUser(c *gin.Context) {
 	})
 }
 
-// func ReadUser(c *gin.Context) {
-// 	id := c.Param("id")
+// DeleteUser     godoc
+// @Summary		delete Users
+// @Description	*Authorization
+// @Tags		User
+// @Produce		json
+// @Router	    /user/{id} [delete]
+// @security ApiKeyAuth
+// @param id path int true "id"
+// @Success 200 {object} model.Response "OK"
+// @Failure 400 {object} model.Response "Bad Request"
+// @Failure 500 {object} model.Response "Internal Server Error"
+func DeleteUser(c *gin.Context) {
+	id := c.Param("id")
 
-// 	var userExist orm.User
-// 	orm.DB.Where("id = ?", json.Username).Find(&userExist)
-// 	orm.DB.Find(&users)
+	user := orm.User{}
+	err := orm.DB.Where("id = ?", id).Find(&user).Error
+	if err != nil {
+		logrus.Errorf("find error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
 
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status":  http.StatusOK,
-// 		"message": "Users Read Success",
-// 		"users":   users,
-// 	})
-// }
+	err = orm.DB.Where("id = ?", id).Delete(&user).Error
+	if err != nil {
+		logrus.Errorf("find error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Success",
+	})
+}
