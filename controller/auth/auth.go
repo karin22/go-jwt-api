@@ -16,6 +16,7 @@ type RegisterBody struct {
 	Username string `json:"username" binding:"required" example:"karin"`
 	Password string `json:"password" binding:"required" example:"1234"`
 	Fullname string `json:"fullname" binding:"required" example:"karin pimloy"`
+	FileID   uint   `json:"file_id" binding:"required"`
 }
 
 // Register     godoc
@@ -53,7 +54,7 @@ func Register(c *gin.Context) {
 	//Create User
 	encryptPasswords, _ := bcrypt.GenerateFromPassword([]byte(json.Password), 10)
 
-	user := orm.User{Username: json.Username, Password: string(encryptPasswords), Fullname: json.Fullname}
+	user := orm.User{Username: json.Username, Password: string(encryptPasswords), Fullname: json.Fullname, FileID: json.FileID}
 
 	orm.DB.Create(&user) // pass pointer of data to Create
 

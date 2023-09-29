@@ -11,19 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/sirupsen/logrus"
-
-	"gorm.io/gorm"
 )
 
 type UpdateUserBody struct {
 	Username string `json:"username" binding:"required"`
 	Fullname string `json:"fullname"  binding:"required"`
+	FileID   int    `json:"file_id" binding:"required"`
 }
 
-type User struct {
-	gorm.Model
-	Username string
-	Fullname string
+type File struct {
+	ID int `json:"id"`
 }
 
 //		ReadAllUsers     godoc
@@ -40,8 +37,7 @@ func ReadAllUsers(c *gin.Context) {
 
 	users := []*orm.User{}
 
-	orm.DB.Find(&users)
-
+	orm.DB.Preload("File").Find(&users)
 	c.JSON(http.StatusOK, model.Response{
 		Status:  http.StatusOK,
 		Message: "Users Read Success",
@@ -71,7 +67,8 @@ func Profile(c *gin.Context) {
 
 	user := orm.User{}
 	id := claims["userID"]
-	err := orm.DB.Where("id = ?", id).Find(&user).Error
+
+	err := orm.DB.Where("id = ?", id).Preload("File").Find(&user).Error
 	if err != nil {
 		logrus.Errorf("find error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -139,6 +136,7 @@ func UpdateUser(c *gin.Context) {
 		"status":  http.StatusOK,
 		"message": "Success",
 		"users":   user,
+		"id":      id,
 	})
 }
 

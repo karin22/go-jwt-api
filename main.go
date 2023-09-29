@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	AuthController "helloGo/jwt-api/controller/auth"
+	FilesController "helloGo/jwt-api/controller/files"
 	UserController "helloGo/jwt-api/controller/user"
 
 	"helloGo/jwt-api/middleware"
@@ -52,5 +53,6 @@ func main() {
 	protected.PUT("/user/:id", UserController.UpdateUser)
 	protected.DELETE("/user/:id", UserController.DeleteUser)
 
+	r.POST("/upload", FilesController.UploadFile)
 	r.Run("localhost:3000") // listen and serve on 0.0.0.0:3000 (for windows "localhost:3000")
 }

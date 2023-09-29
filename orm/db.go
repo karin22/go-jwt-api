@@ -1,11 +1,12 @@
 package orm
 
 import (
-	"gorm.io/gorm"
-	"gorm.io/driver/postgres"
 	"os"
-  )
-  
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
 var DB *gorm.DB
 var err error
 
@@ -17,4 +18,6 @@ func InitDB() {
 	}
 	// Auto Migrate
 	DB.AutoMigrate(&User{})
+	DB.AutoMigrate(&Files{})
+
 }
